@@ -35,10 +35,17 @@
         .result-section h4 {
             color: #343a40;
         }
+        .history-section, .favorites-section {
+            margin-top: 20px;
+        }
+        .dark-mode {
+            background-color: #343a40;
+            color: white;
+        }
     </style>
 </head>
 <body>
-    <div class="container mt-5">
+    <div class="container mt-5" id="main-container">
         <h1 class="text-center mb-4">Language Detection and Translation</h1>
         <form method="post" action="/trans" class="mt-4">
             <div class="form-group">
@@ -54,16 +61,53 @@
                 </select>
             </div>
             <button type="submit" class="btn btn-primary">Translate</button>
+            <button type="button" class="btn btn-secondary" id="toggle-dark-mode">Toggle Dark Mode</button>
+            <a href="/clear_history" class="btn btn-danger">Clear History</a>
         </form>
+
         {% if translation %}
             <div class="result-section mt-4">
                 <h4>Detected Language: {{ detected_lang }}</h4>
                 <h4>Translation: {{ translation }}</h4>
+                {% if history %}
+                    <a href="/download/{{ history|length - 1 }}" class="btn btn-secondary mt-2">Download Translation</a>
+                    <a href="/favorite/{{ history|length - 1 }}" class="btn btn-warning mt-2">Favorite</a>
+                {% endif %}
             </div>
         {% endif %}
+
+        <div class="history-section mt-4">
+            <h4>Translation History</h4>
+            <ul class="list-group">
+                {% for record in history %}
+                    <li class="list-group-item">
+                        Original: {{ record.original }} | Stemmed: {{ record.stemmed }} | Lemmatized: {{ record.lemmatized }} | Detected: {{ record.detected }} | Translation: {{ record.translated }}
+                        <a href="/download/{{ loop.index0 }}" class="btn btn-link">Download</a>
+                        <a href="/favorite/{{ loop.index0 }}" class="btn btn-warning btn-sm">Favorite</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="favorites-section mt-4">
+            <h4>Favorite Translations</h4>
+            <ul class="list-group">
+                {% for record in favorites %}
+                    <li class="list-group-item">
+                        Original: {{ record.original }} | Detected: {{ record.detected }} | Translation: {{ record.translated }}
+                        <a href="/download/{{ loop.index0 }}" class="btn btn-link">Download</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Dark Mode Toggle
+        document.getElementById('toggle-dark-mode').addEventListener('click', function() {
+            const container = document.getElementById('main-container');
+            container.classList.toggle('dark-mode');
+        });
+    </script>
 </body>
 </html>
